@@ -1,7 +1,8 @@
-import fs from 'fs'
+import * as fs from 'fs';
+import * as path from 'path';
 import dotenv from 'dotenv'
 import { signWithApiSigner } from "../api_request/signer";
-import { createRequest } from "../api_request/formStoreRequest";
+import { createRequest } from "../api_request/formStoreRequestDirect";
 import { createAndSignTx } from "../api_request/pushToApi";
 
 
@@ -14,13 +15,14 @@ const fordefiConfig = {
   pathEndpoint:  "/api/v1/transactions"
 };
 
-const bytecode = fs.readFileSync('./artifacts/wasm_base64.txt', 'utf8');
-
 async function main(): Promise<void> {
+
+    const wasmBinary = fs.readFileSync(path.resolve(__dirname, '../artifacts/fordefi_archway.wasm'));
   
     try {
       // 1. Create json payload for transaction
-      const requestBody = JSON.stringify(await createRequest(fordefiConfig.vaultId, fordefiConfig.senderAddress, bytecode));
+      const requestBody = JSON.stringify(await createRequest(fordefiConfig.vaultId, fordefiConfig.senderAddress, wasmBinary));
+      console.log("Request: ", requestBody)
   
       // 2. Sign with Fordefi API Signer
       const timestamp = new Date().getTime();
