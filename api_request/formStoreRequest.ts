@@ -18,7 +18,7 @@ export async function createRequest(vault_id: string, sender: string, bytecode: 
           "format":"amino",
           "messages":[
              {
-                "type":"wasm/MsgStoreCode",
+                "type":"cosmos-sdk/MsgStoreCode",
                 "value": JSON.stringify(messageValue)
              }
           ],
