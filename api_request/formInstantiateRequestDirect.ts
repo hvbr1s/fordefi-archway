@@ -5,7 +5,8 @@ import { MsgInstantiateContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { PubKey } from 'cosmjs-types/cosmos/crypto/secp256k1/keys';
 
 export async function createInstantiateRequest(vault_id: string, sender: string, code_id: number, label: string) {
-  // Define the instantiate message according to your contract's requirements
+  
+  // Define the instantiate message according to your contract's requirements, in our case it's a simple counter
   const instantiateMsg = {
     count: 42
   };
@@ -36,7 +37,7 @@ export async function createInstantiateRequest(vault_id: string, sender: string,
   const bodyBase64 = toBase64(bodyBytes);
   
   // 3. Create and encode the auth info
-  const publicKeyBytes = fromBase64("AqL2SON9Q8XivpgRbbYYf+Pm+3Ctjmg93QuNpM90/BHO"); // change to you public_key_compressed
+  const publicKeyBytes = fromBase64("AqL2SON9Q8XivpgRbbYYf+Pm+3Ctjmg93QuNpM90/BHO"); // CHANGE to you public_key_compressed
   const pubKey = PubKey.fromPartial({
     key: publicKeyBytes
   });
@@ -52,7 +53,7 @@ export async function createInstantiateRequest(vault_id: string, sender: string,
           mode: SignMode.SIGN_MODE_DIRECT
         }
       },
-      sequence: BigInt(1) // change as needed
+      sequence: BigInt(1) // CHANGE as needed
     }],
     fee: {
       amount: [{
