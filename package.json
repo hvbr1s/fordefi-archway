@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "store": "npx ts-node src/store.ts",
-    "instantiate": "npx ts-node src/instanciate.ts"
+    "instantiate": "npx ts-node src/instantiate.ts"
   },
   "keywords": [],
   "author": "",

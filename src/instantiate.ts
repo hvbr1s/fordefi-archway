@@ -8,13 +8,18 @@ const fordefiConfig = {
   accessToken: process.env.FORDEFI_API_USER_TOKEN ?? "",
   vaultId: process.env.FORDEFI_COSMOS_VAULT_ID || "",
   senderAddress: process.env.FORDEFI_COSMOS_ARCHWAY_ADDRESS || "",
+  compressedPubKey: process.env.FORDEFI_COSMOS_VAULT_COMPRESSED_PUBKEY || "", // public_key_compressed value when GET https://api.fordefi.com/api/v1/vaults/{id}
   privateKeyPath: "./secret/private.pem",
   pathEndpoint: "/api/v1/transactions"
 };
 
-// You'll need to get this from your previous StoreCode transaction response
+// Contract specific variables
 const codeId = 853; // Replace with the actual code ID from the Archway explorer on Mintscan
 const contractLabel = "Fordef Deployed Contract!";
+const instantiateMsg = {
+  count: 42
+};
+const msgString = JSON.stringify(instantiateMsg);
 
 async function main(): Promise<void> {
   try {
@@ -22,9 +27,11 @@ async function main(): Promise<void> {
     const requestBody = JSON.stringify(
       await createInstantiateRequest(
         fordefiConfig.vaultId, 
-        fordefiConfig.senderAddress, 
+        fordefiConfig.senderAddress,
+        fordefiConfig.compressedPubKey, 
         codeId,
-        contractLabel
+        contractLabel,
+        msgString
       )
     );
     console.log("Request: ", requestBody)

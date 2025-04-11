@@ -1,10 +1,11 @@
 import { toBase64, fromBase64 } from '@cosmjs/encoding';
+import { getSequence } from "./getSequence";
 import { TxBody, AuthInfo } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { SignMode } from 'cosmjs-types/cosmos/tx/signing/v1beta1/signing';
 import { MsgStoreCode } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { PubKey } from 'cosmjs-types/cosmos/crypto/secp256k1/keys';
 
-export async function createRequest(vault_id: string, sender: string, binary: any) {
+export async function createRequest(vault_id: string, sender: string, compressedPubKey: string, binary: any) {
 
   // 1. Create the MsgStoreCode message
   const storeCodeMsg = MsgStoreCode.fromPartial({
@@ -26,10 +27,13 @@ export async function createRequest(vault_id: string, sender: string, binary: an
   const bodyBase64 = toBase64(bodyBytes);
   
   // 3. Create and encode the auth info
-  const publicKeyBytes = fromBase64("AqL2SON9Q8XivpgRbbYYf+Pm+3Ctjmg93QuNpM90/BHO"); // CHANGE to your public_key_compressed
+  const publicKeyBytes = fromBase64(compressedPubKey);
   const pubKey = PubKey.fromPartial({
     key: publicKeyBytes
   });
+
+  const nextSequence = await getSequence(sender);
+  console.log(`Next sequence: ${nextSequence}`);
   
   const authInfo = AuthInfo.fromPartial({
     signerInfos: [{
@@ -42,7 +46,7 @@ export async function createRequest(vault_id: string, sender: string, binary: an
           mode: SignMode.SIGN_MODE_DIRECT
         }
       },
-      sequence: BigInt(0) // CHANGE as needed
+      sequence: BigInt(nextSequence) // CHANGE as needed
     }],
     fee: {
       amount: [{
