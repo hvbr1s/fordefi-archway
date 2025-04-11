@@ -1,19 +1,12 @@
 import { toBase64, fromBase64 } from '@cosmjs/encoding';
+import { getSequence } from "./getSequence";
 import { TxBody, AuthInfo } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { SignMode } from 'cosmjs-types/cosmos/tx/signing/v1beta1/signing';
 import { MsgInstantiateContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx';
 import { PubKey } from 'cosmjs-types/cosmos/crypto/secp256k1/keys';
 
-export async function createInstantiateRequest(vault_id: string, sender: string, code_id: number, label: string) {
+export async function createInstantiateRequest(vault_id: string, sender: string, compressedPubKey: string, code_id: number, label: string, msgString: string) {
   
-  // Define the instantiate message according to your contract's requirements, in our case it's a simple counter
-  const instantiateMsg = {
-    count: 42
-  };
-
-  // Convert instantiate message to JSON string
-  const msgString = JSON.stringify(instantiateMsg);
-
   // 1. Create the MsgInstantiateContract message
   const instantiateContractMsg = MsgInstantiateContract.fromPartial({
     sender: sender,
@@ -37,10 +30,13 @@ export async function createInstantiateRequest(vault_id: string, sender: string,
   const bodyBase64 = toBase64(bodyBytes);
   
   // 3. Create and encode the auth info
-  const publicKeyBytes = fromBase64("AqL2SON9Q8XivpgRbbYYf+Pm+3Ctjmg93QuNpM90/BHO"); // CHANGE to you public_key_compressed
+  const publicKeyBytes = fromBase64(compressedPubKey);
   const pubKey = PubKey.fromPartial({
     key: publicKeyBytes
   });
+
+  const nextSequence = await getSequence(sender);
+  console.log(`Next sequence: ${nextSequence}`);
   
   const authInfo = AuthInfo.fromPartial({
     signerInfos: [{
@@ -53,7 +49,7 @@ export async function createInstantiateRequest(vault_id: string, sender: string,
           mode: SignMode.SIGN_MODE_DIRECT
         }
       },
-      sequence: BigInt(1) // CHANGE as needed
+      sequence: BigInt(nextSequence) // CHANGE as needed
     }],
     fee: {
       amount: [{
